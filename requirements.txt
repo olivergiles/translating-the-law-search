@@ -1,0 +1,6 @@
+beautifulsoup4
+docker-compose
+elasticsearch==7.14.1
+selenium
+streamlit
+gcsfs
