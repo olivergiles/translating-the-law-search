@@ -1,7 +1,7 @@
 #cloudbuild.yaml
 steps:
-- name: ‘search_docker/docker-compose.yml’
-  args: [‘up’]
+- name: 'docker/compose:1.19.0'
+  args: ['up', 'test']
 - name: 'gcr.io/cloud-builders/docker'
   args: ['tag', 'workspace_app:latest', 'gcr.io/$PROJECT_ID/$REPO_NAME:$COMMIT_SHA']
 images: ['gcr.io/$PROJECT_ID/$REPO_NAME:$COMMIT_SHA']
