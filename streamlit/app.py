@@ -21,7 +21,7 @@ class vis_app:
     def app():
         base_path = os.path.dirname(os.path.realpath(__file__))
         csv_path = os.path.join(base_path, "graph_viz.csv")
-        clustering_data = st.cache(pd.read_csv(csv_path))
+        clustering_data = pd.read_csv(csv_path)
         button = st.button('Launch cluster')
         if button:
             fig = px.scatter_3d(clustering_data, x='x', y='y', z='z',color = clustering_data['labels'])
