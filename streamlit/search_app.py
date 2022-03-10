@@ -42,7 +42,7 @@ def set_session_state():
 
 
 def main(test):
-    st.set_page_config(page_title='Supreme court cases')
+    st.set_page_config(page_title='Search Supreme Court cases')
     set_session_state()
     st.write(templates.load_css(), unsafe_allow_html=True)
     if test:
