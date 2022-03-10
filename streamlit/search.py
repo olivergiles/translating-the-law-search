@@ -33,7 +33,9 @@ def app():
     page_size = int(os.environ['PAGE_SIZE'])
     domain = os.environ['DOMAIN']
     es = Elasticsearch(host=domain)
-    st.title('Search Supreme Court cases')
+    st.title('Translate the Law')
+    st.write('##')
+    st.subheader('Search Supreme Court cases')
     if st.session_state.search is None:
         search = st.text_input('Enter search words:')
     else:

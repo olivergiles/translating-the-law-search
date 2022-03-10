@@ -7,9 +7,6 @@ services:
        - discovery.type=single-node
     ports:
        - 9200:9200
- #   volumes:
- #      - esdata:/usr/share/elasticsearch/data
-
   web:
     image: uksc-full-app
     container_name: uksc-full-app
@@ -17,7 +14,3 @@ services:
       - es
     ports:
       - 8501:8501
-
-#volumes:
-#  esdata:
-#    driver: local

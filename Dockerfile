@@ -13,8 +13,6 @@ RUN apt update && \
 COPY ./streamlit /streamlit
 COPY ./.streamlit /.streamlit
 
-RUN export FIRST=first
-
 ENTRYPOINT ["streamlit", "run"]
 
 CMD ["/streamlit/app.py"]

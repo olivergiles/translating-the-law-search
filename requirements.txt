@@ -4,3 +4,5 @@ elasticsearch==7.14.1
 selenium
 streamlit
 gcsfs
+top2vec
+plotly

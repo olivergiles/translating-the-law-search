@@ -5,7 +5,7 @@ import numpy as np
 import json
 import gcsfs
 import requests
-
+import os
 def open_from_bucket():
     gcs_file_system = gcsfs.GCSFileSystem()
     gcs_json_path = "gs://law-data-ogiles/data/simplified_data.json"
@@ -29,47 +29,38 @@ years = year_dir['Year'].unique()
 
 questions_df = pd.DataFrame({'questions': ['Please select', 'Sample Question 1', 'Sample Question 2']})
 
+base_path = os.path.dirname(os.path.realpath(__file__))
+base_path = os.path.dirname(base_path)
+path = os.path.join(base_path, 'data', 'summarised_data.json')
+with open(path, 'r') as myfile:
+    data=myfile.read()
+obj = json.loads(data)
+data_dictionary_summarised = obj
+
 def app():
     st.title('Translate the Law')
-    st.write('#')
+    st.write('##')
     st.subheader('Select a case by year')
-    st.caption('Need to quickly understand a UK Supreme Court case?\
-        Select one from the menu below or choose random to learn something new!')
     col1, col2 = st.columns([1,5])
+    choose_index = 0
     with col1:
-        choose_year = st.selectbox('Judgment year',
-                                   np.sort(years))
+        choose_year = st.selectbox('Judgment year:',
+                                   np.sort(years)[:-2])
     with col2:
-        cases_option = st.selectbox('Case name',
+        cases_option = st.selectbox('Case name:',
                                     year_dir[year_dir['Year'] == choose_year]['Name'])
     choose_case = st.button(f'Go to summary: {cases_option}')
     choose_random = st.button('Select a random case')
     if choose_case:
+        choose_index = list(year_dir['Name']).index(cases_option)
         st.write('#')
         st.header(cases_option)
         st.write('##')
         st.subheader("Summary")
-        st.write("The model-generated summary will show up here,\
-            along with some of the other relevant case details such as case id number,\
-            judgment date, names of justices, and neutral citation number(?)")
-        st.write('##')
-        st.subheader('Q&A')
-        col1, col2 = st.columns([2,3])
-        with col1:
-            our_q = st.selectbox('Suggested questions', questions_df['questions'])
-        with col2:
-            new_q = st.text_input('Or write your own', placeholder='Ask a question about this case')
-        #ask = st.button('Ask')
-        if our_q != 'Please select':
-            question = 'sample question: what was the outcome?'
-        else:
-            question = new_q
-        #if ask:
-        text_type = "summ"
-        key = 0
-        url = f"https://uksc-question-app-jaefennyiq-ew.a.run.app/question?type={text_type}&key={key}&question={question}"
-        response = requests.get(url).json()
-        st.write("A: ", response["answer"]["answer"], "\n Confidence: ", response["answer"]["score"])
+        st.write(f'''
+             Summary: {data_dictionary_summarised[choose_index]['Background summary']},
+             Judgment: {data_dictionary_summarised[choose_index]['Judgment summary']}
+             ''' )
     elif choose_random:
         choose_index = np.random.randint(0, len(year_dir))
         random_case = year_dir.at[choose_index, 'Name']
@@ -77,31 +68,20 @@ def app():
         st.header(random_case)
         st.write('##')
         st.subheader("Summary")
-        st.write("The model-generated summary will show up here,\
-            along with some of the other relevant case details such as case id number,\
-            judgment date, names of justices, and neutral citation number(?)")
-        st.write('##')
-        st.subheader('Q&A')
-        col1, col2 = st.columns([2,3])
-        with col1:
-            our_q = st.selectbox('Suggested questions',
-                                questions_df['questions'])
-        with col2:
-            new_q = st.text_input('Or write your own',
-                                placeholder='Ask a question about this case')
-        ask = st.button('Ask')
-        if ask and our_q != 'Please select':
-            answer = 'saved answer for suggested question'
-        elif ask:
-            answer = 'new output from Q&A model'
-        st.write(f'A: {answer}')
-
-
-    ### Example for connection to question answering api
-    #question = "what was the outcome?"
-    #text_type = "summ"
-    #key = 0
-    #url = f"https://uksc-question-app-jaefennyiq-ew.a.run.app/question?type={text_type}&key={key}&question={question}"
-    #response = requests.get(url).json()
-    #st.write("Question answer: ", response["answer"]["answer"], "\n Confidence: ", response["answer"]["score"])
-    ### End of example
+        st.write(f'''
+             Summary: {data_dictionary_summarised[choose_index]['Background summary']},
+             Judgment: {data_dictionary_summarised[choose_index]['Judgment summary']}
+             ''' )
+    st.write('##')
+    st.subheader('Q&A')
+    new_q = st.text_input('Question: ', placeholder='Ask a question about this case')
+    ask = st.button('Ask')
+    if ask:
+        question = "What was the outcome?"
+        text_type = "summ"
+        key = 23
+        url = f"https://uksc-question-app-jaefennyiq-ew.a.run.app/question?type={text_type}&key={key}&question={question}"
+        response = requests.get(url).json()
+        st.write("Question: ", question)
+        st.write("Answer: ", response["answer"]["answer"])
+        st.write("Confidence: ", str(response["answer"]["score"]))

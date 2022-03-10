@@ -6,7 +6,7 @@ questions_df = pd.DataFrame({'questions': ['Please select', 'Sample Question 1',
 
 def app():
     st.title('Translate the Law: Question API Example')
-    st.write('#')
+    st.write('##')
     ### Example for connection to question answering api
     question = "what was the outcome?"
     text_type = "summ" #full

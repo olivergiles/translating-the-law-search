@@ -9,6 +9,23 @@ from elasticsearch import Elasticsearch
 import json
 import utils, templates, search
 from functions.get_search_data import get_search_data
+import streamlit as st
+import pandas as pd
+import plotly.express as px
+
+
+
+
+
+
+def vis_app():
+    base_path = os.path.dirname(os.path.realpath(__file__))
+    csv_path = os.path.join(base_path, "graph_viz.csv")
+    clustering_data = st.cache(pd.read_csv(csv_path))
+    button = st.button('Launch cluster')
+    if button:
+        fig = px.scatter_3d(clustering_data, x='x', y='y', z='z',color = clustering_data['labels'])
+        st.plotly_chart(fig)
 
 INDEX = 'uksc_data'
 PAGE_SIZE = 5
@@ -40,6 +57,7 @@ app = MultiApp()
 app.add_app('Select case from year', year_select.app)
 app.add_app('Search for a case by keyword', search.app)
 app.add_app('Upload your own text', case_upload.app)
-app.add_app('Question API Example', case_search.app)
+app.add_app('Clustering', vis_app)
+#app.add_app('Question API Example', case_search.app)
 
 app.run()

@@ -4,11 +4,9 @@ import requests
 
 def app():
     st.title('Translate the Law')
-    st.write('#')
-    st.subheader('Summarize a new case')
-    st.caption("Have a court judgment or press release you want to understand?\
-        Enter the text of your document below to have it quickly summarized.")
-    txt = st.text_area('Paste legal text and press enter to get your summary',
+    st.write('##')
+    st.subheader('Summarise a new case')
+    txt = st.text_area('Paste legal text and press enter to get your summary:',
                         max_chars=None,
                         placeholder=None)
     if st.button('Enter'):
