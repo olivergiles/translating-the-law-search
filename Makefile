@@ -1,2 +1,2 @@
 build_container:
-	@docker build -t uksc-search-app .
+	@docker build -t uksc-full-app .

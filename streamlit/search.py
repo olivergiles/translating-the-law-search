@@ -2,11 +2,33 @@ import os
 import sys
 import streamlit as st
 from elasticsearch import Elasticsearch
-sys.path.append('srcs')
 import utils, templates
 
+def set_session_state():
+    """ """
+    # default values
+    if 'search' not in st.session_state:
+        st.session_state.search = None
+    if 'tags' not in st.session_state:
+        st.session_state.tags = None
+    if 'page' not in st.session_state:
+        st.session_state.page = 1
+
+    # get parameters in url
+    para = st.experimental_get_query_params()
+    if 'search' in para:
+        st.experimental_set_query_params()
+        st.session_state.search = urllib.parse.unquote(para['search'][0])
+    if 'tags' in para:
+        st.experimental_set_query_params()
+        st.session_state.tags = para['tags'][0]
+    if 'page' in para:
+        st.experimental_set_query_params()
+        st.session_state.page = int(para['page'][0])
 
 def app():
+    set_session_state()
+    st.write(templates.load_css(), unsafe_allow_html=True)
     index = os.environ['INDEX']
     page_size = int(os.environ['PAGE_SIZE'])
     domain = os.environ['DOMAIN']
@@ -44,8 +66,12 @@ def app():
             # search results
             for i in range(len(results['hits']['hits'])):
                 res = utils.simplify_es_result(results['hits']['hits'][i])
-                st.write(templates.search_result(i + from_i, **res),
-                         unsafe_allow_html=True)
+                result_button = st.button(str(i + 1) + ": " + res['name'])
+                st.write(templates.search_result(i + from_i, **res),unsafe_allow_html=True)
+                if result_button:
+                    st.write("Button pressed")
+                else:
+                    pass
                 # render tags
                 tags_html = templates.tag_boxes(search, res['tags'],
                                                 st.session_state.tags)

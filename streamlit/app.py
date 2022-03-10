@@ -1,3 +1,6 @@
+import streamlit as st
+from multiapp import MultiApp
+from pages import case_search, case_upload, year_select
 import os
 import sys
 import urllib.parse
@@ -17,44 +20,26 @@ utils.check_and_create_index(es, INDEX)
 os.environ['INDEX'] = INDEX
 os.environ['PAGE_SIZE'] = str(PAGE_SIZE)
 os.environ['DOMAIN'] = DOMAIN
+index = os.environ['INDEX']
 
-def set_session_state():
-    """ """
-    # default values
-    if 'search' not in st.session_state:
-        st.session_state.search = None
-    if 'tags' not in st.session_state:
-        st.session_state.tags = None
-    if 'page' not in st.session_state:
-        st.session_state.page = 1
+@st.experimental_memo
+def get_cases():
+    return get_search_data()
 
-    # get parameters in url
-    para = st.experimental_get_query_params()
-    if 'search' in para:
-        st.experimental_set_query_params()
-        st.session_state.search = urllib.parse.unquote(para['search'][0])
-    if 'tags' in para:
-        st.experimental_set_query_params()
-        st.session_state.tags = para['tags'][0]
-    if 'page' in para:
-        st.experimental_set_query_params()
-        st.session_state.page = int(para['page'][0])
+cases = get_cases()
 
+try:
+    if os.environ['RUN'] == 'done':
+        pass
+except:
+    utils.index_cases(es, index, cases, False)
+    os.environ['RUN'] = 'done'
 
-def main(test):
-    st.set_page_config(page_title='Supreme court cases')
-    set_session_state()
-    st.write(templates.load_css(), unsafe_allow_html=True)
-    if test:
-        with open("/data/search.json", 'r') as myfile:
-            file=myfile.read()
-        obj = json.loads(file)
-        cases = eval(obj)
-    else:
-        cases = get_search_data()
-    index = os.environ['INDEX']
-    utils.index_cases(es, index, cases, test)
-    search.app()
+app = MultiApp()
 
-if __name__ == '__main__':
-    main(False)
+app.add_app('Select case from year', year_select.app)
+app.add_app('Search for a case by keyword', search.app)
+app.add_app('Upload your own text', case_upload.app)
+app.add_app('Question API Example', case_search.app)
+
+app.run()
